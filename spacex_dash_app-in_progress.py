@@ -15,7 +15,8 @@ min_payload = spacex_df['Payload Mass (kg)'].min()
 #print('min payload is ',min_payload)
 #launch site list
 launch_sites = spacex_df['Launch Site'].unique()
-#print(launch_sites)
+launch_sites_all = "('" + "','".join(launch_sites) + "')"
+#print(launch_sites) launch_sites_all = ', '.join(launch_sites) ('CCAFS LC-40','VAFB SLC-4E','KSC LC-39A','CCAFS SLC-40')
 launch_list =[i for i in (launch_sites)]
 
 #some task work
@@ -42,7 +43,10 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard02',
                                 html.Label('Select Launch Site'),
                                 dcc.Dropdown(
                                     id='site-dropdown',
-                                    options=[{'label': i, 'value':i} for i in launch_list],
+                                    options=[
+                                        {'label': 'All Sites', 'value':launch_sites_all}]+
+                                        [{'label': i, 'value':i} for i in launch_list
+                                        ],
                                     value='default',
                                     placeholder='Select A Launch Site'
                                 ),
@@ -72,9 +76,10 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard02',
                                 html.Div(
                                     dcc.RangeSlider(
                                         id='payload-slider',
-                                        min= min_payload, 
-                                        max= max_payload,
-                                        value=[500,5000]
+                                        min= 0, 
+                                        max= 10000,
+                                        step=1000,
+                                        value=[min_payload,max_payload]
                                         )
                                         ),
                                 
@@ -96,6 +101,10 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard02',
     Input(component_id='site-dropdown',component_property='value')
     )
 def update_output_pie(selected_site):
+    # Print launch_sites_all and launch_list to the terminal
+    print('Launch sites all:', launch_sites_all)
+    print('Launch list:', launch_list)
+
     if selected_site is None:
         return px.pie(
             success_df,
@@ -112,6 +121,17 @@ def update_output_pie(selected_site):
             values=my_values,
             names=my_names,
             title='Succesful Launches Initial1'
+        )
+    
+    elif selected_site == launch_sites_all:
+        print('default')
+        #print(success_df.head())
+        return px.pie(
+            success_df,
+            
+            values=my_values,
+            names=my_names,
+            title='Succesful Launches Initial4'
         )
     else:
         print('selected site is: ', selected_site)
@@ -134,7 +154,13 @@ def update_output_pie(selected_site):
 
 # TASK 4:
 # Add a callback function for `site-dropdown` and `payload-slider` as inputs, `success-payload-scatter-chart` as output
-
+@app.callback(
+    Output(component_id='success-payload-scatter-chartt', component_property='figure'),
+    Input(component_id='site-dropdown',component_property='value'),
+    Input(component_id='payload-slider',component_property='value')
+    )
+def update_scatter(selected_site,selected_payload):
+    pass
 
 # Run the app
 if __name__ == '__main__':
