@@ -102,8 +102,10 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard02',
     )
 def update_output_pie(selected_site):
     # Print launch_sites_all and launch_list to the terminal
-    print('Launch sites all:', launch_sites_all)
-    print('Launch list:', launch_list)
+    #print('Launch sites all:', launch_sites_all)
+    #print('Launch list:', launch_list)
+    print('values are: ',my_values)
+    print("Names:", my_names)
 
     if selected_site is None:
         return px.pie(
@@ -138,14 +140,14 @@ def update_output_pie(selected_site):
         site_df = spacex_df[spacex_df['Launch Site'] == selected_site][['Launch Site', 'class']].reset_index(drop=True)
         print(site_df.head())
             
-        #site_values=site_df['class']
-        #site_names=site_df["Launch Site"]
+        site_values=site_df['class']
+        site_names=site_df["Launch Site"]
         
 
         return px.pie(
             site_df,
-            values='class',
-            names='Launch Site',
+            values=site_df['class'],
+            names=site_df["Launch Site"],
             title='Succesful Launches Initial3'
             )
             
