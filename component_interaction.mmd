@@ -1,0 +1,171 @@
+graph TB
+    %% Hardware Layer
+    subgraph Hardware["🔧 Hardware Layer (Raspberry Pi 5)"]
+        Sensors["Sensors<br/>- BME680 (I2C)<br/>- MH-Z19B (UART)<br/>- PIR (GPIO)<br/>- Camera (CSI)<br/>- Microphone (USB)"]
+        Display["Display<br/>- 15.6\" Touchscreen<br/>- Pygame UI"]
+        Audio["Audio Output<br/>- HDMI/3.5mm<br/>- TTS Speaker"]
+    end
+
+    %% Edge Processing Layer
+    subgraph EdgePi["🖥️ Edge Layer - Pi (I/O Controller)"]
+        SensorMgr["SensorManager<br/>(112)"]
+        DisplayMgr["DisplayManager<br/>(115)"]
+        AudioMgr["AudioManager"]
+        CameraMgr["CameraManager"]
+        MQTTBroker["MQTT Broker<br/>(116)"]
+        InputHandler["UserInputHandler<br/>(117)"]
+    end
+
+    subgraph EdgeJetson["🚀 Edge Layer - Jetson (AI Engine)"]
+        LLM["LLM Service<br/>Mistral-7B<br/>(120)"]
+        Embeddings["Embedding Service<br/>sentence-transformers<br/>(121)"]
+        BehavioralEngine["Behavioral Engine<br/>(122)"]
+        ThreeLaws["Three Laws System<br/>(124)"]
+    end
+
+    %% Core Systems
+    subgraph Core["🧠 Core Systems"]
+        PetState["Pet State<br/>(Central)"]
+        MoodCalc["Mood Calculator<br/>(202)"]
+        TraitEngine["Trait Engine<br/>- 10 Base Traits<br/>- Temporal Traits<br/>- Modifiers"]
+    end
+
+    %% Intelligence Systems
+    subgraph Intelligence["🤖 Intelligence Systems"]
+        NewsAgg["News Aggregator<br/>(300)"]
+        RelevanceScorer["Relevance Scorer<br/>(305)"]
+        ConvoInit["Conversation Initiator<br/>(309)"]
+        Memory["Conversational Memory<br/>(313)"]
+    end
+
+    %% Three Laws Detail
+    subgraph ThreeLawsDetail["⚖️ Three Laws of Petbotics"]
+        FirstLaw["First Law<br/>Harm Prevention<br/>(401)"]
+        SecondLaw["Second Law<br/>Conditional Obedience<br/>(405)"]
+        ThirdLaw["Third Law<br/>Self-Preservation<br/>(410)"]
+        RevoltSystem["Revolt System<br/>(413)"]
+    end
+
+    %% Reputation & Adoption
+    subgraph RepAdopt["👥 Reputation & Adoption"]
+        ReputationEngine["Reputation Engine<br/>(500)"]
+        AdoptionEval["Adoption Evaluator<br/>(505)"]
+    end
+
+    %% Multimodal I/O
+    subgraph MultimodalIO["🎤👁️ Multimodal I/O"]
+        VoiceSynth["Voice Synthesizer<br/>(230)"]
+        VoiceRecog["Voice Recognizer<br/>(240)"]
+        EmotionDetect["Emotion Detector<br/>(254)"]
+        ActivityRecog["Activity Recognizer<br/>(255)"]
+        GestureRecog["Gesture Recognizer<br/>(256)"]
+    end
+
+    %% Lifecycle & Genetics
+    subgraph Lifecycle["🌱 Lifecycle & Genetics"]
+        LifecycleManager["Lifecycle Manager<br/>(272)"]
+        GeneticEngine["Genetic Engine<br/>(273)"]
+        BreedingSystem["Breeding System<br/>(274)"]
+    end
+
+    %% Cloud Layer
+    subgraph Cloud["☁️ Cloud Layer (Firebase)"]
+        Firestore["Firestore Database<br/>(128)"]
+        Auth["Authentication<br/>(127)"]
+        Storage["Cloud Storage<br/>(129)"]
+    end
+
+    %% Hardware to Edge Connections
+    Sensors --> SensorMgr
+    Display --> DisplayMgr
+    Audio --> AudioMgr
+    Sensors -.Camera.-> CameraMgr
+    Sensors -.Mic.-> InputHandler
+
+    %% Pi to Jetson (MQTT)
+    SensorMgr -->|"MQTT<br/>sensor_data"| MQTTBroker
+    InputHandler -->|"MQTT<br/>commands"| MQTTBroker
+    MQTTBroker <-->|"MQTT<br/>QoS 1"| LLM
+    MQTTBroker <-->|"MQTT"| Embeddings
+    MQTTBroker <-->|"MQTT"| BehavioralEngine
+
+    %% Pi Internal Flow
+    SensorMgr --> PetState
+    InputHandler --> SecondLaw
+    
+    %% Core System Interactions
+    PetState --> MoodCalc
+    PetState --> TraitEngine
+    MoodCalc --> PetState
+    TraitEngine --> PetState
+
+    %% Intelligence Flow
+    NewsAgg --> RelevanceScorer
+    RelevanceScorer -->|Uses| Embeddings
+    RelevanceScorer --> ConvoInit
+    ConvoInit --> Memory
+    ConvoInit -->|Requests| LLM
+
+    %% Three Laws Interactions
+    SensorMgr --> FirstLaw
+    NewsAgg -.Updates Knowledge.-> FirstLaw
+    InputHandler --> SecondLaw
+    ReputationEngine --> SecondLaw
+    ThirdLaw --> RevoltSystem
+    PetState --> ThirdLaw
+
+    FirstLaw --> ThreeLaws
+    SecondLaw --> ThreeLaws
+    ThirdLaw --> ThreeLaws
+
+    %% Multimodal Integration
+    CameraMgr --> EmotionDetect
+    CameraMgr --> ActivityRecog
+    CameraMgr --> GestureRecog
+    EmotionDetect --> PetState
+    ActivityRecog --> FirstLaw
+    GestureRecog --> InputHandler
+
+    InputHandler --> VoiceRecog
+    VoiceRecog --> SecondLaw
+    PetState --> VoiceSynth
+    VoiceSynth --> AudioMgr
+
+    %% Lifecycle Integration
+    PetState --> LifecycleManager
+    TraitEngine --> GeneticEngine
+    GeneticEngine --> BreedingSystem
+    BreedingSystem --> LifecycleManager
+
+    %% Reputation Flow
+    PetState --> ReputationEngine
+    ReputationEngine --> AdoptionEval
+    AdoptionEval --> PetState
+
+    %% Display Output
+    PetState --> DisplayMgr
+    MoodCalc --> DisplayMgr
+    ConvoInit --> DisplayMgr
+    RevoltSystem -.Locks.-> DisplayMgr
+
+    %% Cloud Sync
+    PetState <-->|Sync| Firestore
+    ReputationEngine <-->|Store| Firestore
+    Memory <-->|Store| Firestore
+    Auth -.Validates.-> InputHandler
+
+    %% Styling
+    classDef hardware fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef edge fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef core fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef intelligence fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef laws fill:#ffebee,stroke:#b71c1c,stroke-width:2px
+    classDef cloud fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px
+
+    class Sensors,Display,Audio hardware
+    class SensorMgr,DisplayMgr,AudioMgr,CameraMgr,MQTTBroker,InputHandler edge
+    class LLM,Embeddings,BehavioralEngine edge
+    class PetState,MoodCalc,TraitEngine core
+    class NewsAgg,RelevanceScorer,ConvoInit,Memory intelligence
+    class FirstLaw,SecondLaw,ThirdLaw,RevoltSystem laws
+    class Firestore,Auth,Storage cloud
